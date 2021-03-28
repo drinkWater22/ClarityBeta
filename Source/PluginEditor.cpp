@@ -12,7 +12,7 @@ ClarityPlugin3AudioProcessorEditor::ClarityPlugin3AudioProcessorEditor(ClarityPl
 
     initialize_projectName();
     initialize_muteButton();
-    initialize_mGainControlSilider();
+    initialize_mGainControlSilder();
     initialize_gainLabel();
     initialize_FFT();
 
@@ -57,7 +57,8 @@ void ClarityPlugin3AudioProcessorEditor::resized()
     area.removeFromTop(100); // Temporary Spacing
     
     // muteButton
-    muteButton.setBounds(area.removeFromLeft(area.getWidth() / 4));
+    auto buttonArea = area.removeFromLeft(area.getWidth() / 4);
+    muteButton.setBounds(buttonArea.removeFromBottom(buttonArea.getHeight() / 2));
 
     // mGainControlSlider
     mGainControlSlider.setBounds(area.removeFromLeft(area.getWidth() / 3));
@@ -67,40 +68,6 @@ void ClarityPlugin3AudioProcessorEditor::resized()
 
     // highPass
     highPass.setBounds(area);
-
-    /*
-    //Positioning projectName
-    projectName.setBounds(area.removeFromTop(area.getHeight() / 20));
-
-    //flexbox for EQ
-    juce::FlexBox EQ;
-    EQ.flexDirection = juce::FlexBox::Direction::row;
-    EQ.flexWrap = juce::FlexBox::Wrap::wrap;
-    EQ.alignContent = juce::FlexBox::AlignContent::flexEnd;
-
-    juce::Array<juce::FlexItem> EQArray;
-    //EQArray.add(juce::FlexItem(200,200, ));   //adding 
-    EQ.items = EQArray;
-    EQ.performLayout(getLocalBounds().toFloat());
-
-    //flexbox for filters
-    juce::FlexBox filters;
-    filters.flexDirection = juce::FlexBox::Direction::row;
-    filters.flexWrap = juce::FlexBox::Wrap::wrap;
-    filters.alignContent = juce::FlexBox::AlignContent::flexEnd;
-
-    juce::Array<juce::FlexItem> filtersArray;
-    filtersArray.add(juce::FlexItem(100, 0, muteButton));               //adding mute button to flexbox
-    filtersArray.add(juce::FlexItem(200, 200, mGainControlSlider));     //adding gain knob
-    filtersArray.add(juce::FlexItem(50, 50, gainLabel));                //adding gainLabel
-    filtersArray.add(juce::FlexItem(125, 125, lowPass));                //adding lowPass filter knob
-    filtersArray.add(juce::FlexItem(125, 125, highPass));               //adding highPass filter knob
-
-    filters.items = filtersArray;
-    filters.performLayout(getLocalBounds().toFloat());
-
-    FFT.setBounds(area.removeFromTop(100));
-    */
 }
 
 
@@ -162,7 +129,7 @@ void ClarityPlugin3AudioProcessorEditor::initialize_muteButton()
     muteButton.onClick = [this] { muteButtonClicked(); };
 }
 
-void ClarityPlugin3AudioProcessorEditor::initialize_mGainControlSilider()
+void ClarityPlugin3AudioProcessorEditor::initialize_mGainControlSilder()
 {
     auto& params = processor.getParameters();
     juce::AudioParameterFloat* gainParameter = (juce::AudioParameterFloat*)params.getUnchecked(0);

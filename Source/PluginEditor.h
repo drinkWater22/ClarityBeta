@@ -6,8 +6,6 @@
 #include "AnalyserComponent.h"
 
 //==============================================================================
-/**
-*/
 class ClarityPlugin3AudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
@@ -18,7 +16,7 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
 
-    // implementing the sliderValueChanged
+
     void muteButtonClicked();
     void highPass_SliderValueChanged();
     void lowPass_SliderValueChanged();
@@ -27,7 +25,7 @@ public:
     // Initializations
     void initialize_projectName();
     void initialize_muteButton();
-    void initialize_mGainControlSilider();
+    void initialize_mGainControlSilder();
     void initialize_gainLabel();
     void initialize_FFT();
     void initialize_lowPassLabel();
