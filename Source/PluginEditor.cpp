@@ -21,6 +21,10 @@ ClarityPlugin3AudioProcessorEditor::ClarityPlugin3AudioProcessorEditor(ClarityPl
     initialize_lowPass(); //low pass knob
     initialize_highPassLabel();
     initialize_highPass();
+
+    // Temp Device Manager Initialization
+    addAndMakeVisible(theDeviceManager);
+
 }
 
 ClarityPlugin3AudioProcessorEditor::~ClarityPlugin3AudioProcessorEditor()
@@ -57,8 +61,9 @@ void ClarityPlugin3AudioProcessorEditor::resized()
     area.removeFromTop(100); // Temporary Spacing
     
     // muteButton
-    auto buttonArea = area.removeFromLeft(area.getWidth() / 4);
-    muteButton.setBounds(buttonArea.removeFromBottom(buttonArea.getHeight() / 2));
+    auto buttonArea = area.removeFromLeft(area.getWidth() / 3.5);
+    muteButton.setBounds(buttonArea.removeFromBottom(buttonArea.getHeight() / 2.5));
+    theDeviceManager.setBounds(buttonArea);
 
     // mGainControlSlider
     mGainControlSlider.setBounds(area.removeFromLeft(area.getWidth() / 3));

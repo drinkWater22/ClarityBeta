@@ -3,7 +3,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "SimpleFFT.h"
-#include "AnalyserComponent.h"
+#include "DeviceManager.h"
 
 //==============================================================================
 class ClarityPlugin3AudioProcessorEditor : public juce::AudioProcessorEditor
@@ -16,7 +16,7 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
 
-
+    // Events
     void muteButtonClicked();
     void highPass_SliderValueChanged();
     void lowPass_SliderValueChanged();
@@ -60,6 +60,9 @@ private:
     juce::Slider highPass;
     juce::Label highPassLabel;
     juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> highPassFrequency;
+
+    // Device Manager
+    DeviceManager theDeviceManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ClarityPlugin3AudioProcessorEditor)
 };
