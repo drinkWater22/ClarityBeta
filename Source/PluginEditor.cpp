@@ -12,9 +12,10 @@ ClarityPlugin3AudioProcessorEditor::ClarityPlugin3AudioProcessorEditor(ClarityPl
 
     initialize_projectName();
     initialize_muteButton();
-    initialize_mGainControlSilder();
+    initialize_mGainControlSlider();
     initialize_gainLabel();
     initialize_FFT();
+    
 
     // Filters
     initialize_lowPassLabel();
@@ -39,6 +40,7 @@ void ClarityPlugin3AudioProcessorEditor::paint(juce::Graphics& g)
     g.setGradientFill(juce::ColourGradient(juce::Colours::lightcoral, 0, 0, juce::Colours::darkcyan, 1000, 1000, true));
     g.fillAll();
     g.setFont(15.0f);
+
 }
 
 void ClarityPlugin3AudioProcessorEditor::resized()
@@ -46,7 +48,7 @@ void ClarityPlugin3AudioProcessorEditor::resized()
     juce::Rectangle<int> area = getLocalBounds();
 
     // Add Padding
-    auto applicationBorderPadding = 10;
+    auto applicationBorderPadding = 15;
     area.removeFromTop(applicationBorderPadding);
     area.removeFromLeft(applicationBorderPadding);
     area.removeFromRight(applicationBorderPadding);
@@ -61,8 +63,9 @@ void ClarityPlugin3AudioProcessorEditor::resized()
     area.removeFromTop(100); // Temporary Spacing
     
     // muteButton
-    auto buttonArea = area.removeFromLeft(area.getWidth() / 3.5);
-    muteButton.setBounds(buttonArea.removeFromBottom(buttonArea.getHeight() / 2.5));
+    //muteButton.setBounds(area.removeFromLeft(area.getWidth() / 5));
+    auto buttonArea = area.removeFromLeft(area.getWidth() / 4);
+    muteButton.setBounds(buttonArea.removeFromBottom(buttonArea.getHeight() / 2));
     theDeviceManager.setBounds(buttonArea);
 
     // mGainControlSlider
@@ -73,6 +76,40 @@ void ClarityPlugin3AudioProcessorEditor::resized()
 
     // highPass
     highPass.setBounds(area);
+
+    /*
+    //Positioning projectName
+    projectName.setBounds(area.removeFromTop(area.getHeight() / 20));
+
+    //flexbox for EQ
+    juce::FlexBox EQ;
+    EQ.flexDirection = juce::FlexBox::Direction::row;
+    EQ.flexWrap = juce::FlexBox::Wrap::wrap;
+    EQ.alignContent = juce::FlexBox::AlignContent::flexEnd;
+
+    juce::Array<juce::FlexItem> EQArray;
+    //EQArray.add(juce::FlexItem(200,200, ));   //adding 
+    EQ.items = EQArray;
+    EQ.performLayout(getLocalBounds().toFloat());
+
+    //flexbox for filters
+    juce::FlexBox filters;
+    filters.flexDirection = juce::FlexBox::Direction::row;
+    filters.flexWrap = juce::FlexBox::Wrap::wrap;
+    filters.alignContent = juce::FlexBox::AlignContent::flexEnd;
+
+    juce::Array<juce::FlexItem> filtersArray;
+    filtersArray.add(juce::FlexItem(100, 0, muteButton));               //adding mute button to flexbox
+    filtersArray.add(juce::FlexItem(200, 200, mGainControlSlider));     //adding gain knob
+    filtersArray.add(juce::FlexItem(50, 50, gainLabel));                //adding gainLabel
+    filtersArray.add(juce::FlexItem(125, 125, lowPass));                //adding lowPass filter knob
+    filtersArray.add(juce::FlexItem(125, 125, highPass));               //adding highPass filter knob
+
+    filters.items = filtersArray;
+    filters.performLayout(getLocalBounds().toFloat());
+
+    FFT.setBounds(area.removeFromTop(100));
+    */
 }
 
 
@@ -81,14 +118,31 @@ void ClarityPlugin3AudioProcessorEditor::muteButtonClicked()
 {
     auto& params = processor.getParameters();
 
-    //set gain to 0
     juce::AudioParameterFloat* gainParameter = (juce::AudioParameterFloat*)params.getUnchecked(0);
-    *gainParameter = 0;
 
-    if (*gainParameter == 0) {
+    //if user mutes, make sure that unmute function does not get called
+    int count = 0;
+
+    //function to mute
+    if (*gainParameter != 0) {
+        *gainParameter = 0;
+        muteButton.setButtonText("Unmute");
         muteButton.setColour(juce::TextButton::buttonColourId, juce::Colours::indianred);
+        addAndMakeVisible(muteButton);
+
+
+        //allows program to avoid unmute function being called
+        count++;
     }
 
+    //function to unmute
+    if (*gainParameter == 0 && count == 0)
+    {
+        *gainParameter = mGainControlSlider.getValue();
+        muteButton.setButtonText("Mute");
+        addAndMakeVisible(muteButton);
+        muteButton.setColour(juce::TextButton::buttonColourId, juce::Colour::fromRGB(101, 201, 134));
+    }
 }
 
 void ClarityPlugin3AudioProcessorEditor::highPass_SliderValueChanged()
@@ -109,11 +163,10 @@ void ClarityPlugin3AudioProcessorEditor::mGainControlSlider_SliderValueChanged()
     juce::AudioParameterFloat* gainParameter = (juce::AudioParameterFloat*)params.getUnchecked(0);
     *gainParameter = mGainControlSlider.getValue();
 
-    //sets mute button colour back to original if *gainParameter != 0
-    if (*gainParameter != 0)
-    {
-        muteButton.setColour(juce::TextButton::buttonColourId, juce::Colour::fromRGB(101, 201, 134));
-    }
+    //unmutes if the user moves the rotary slider
+    muteButton.setButtonText("Mute");
+    addAndMakeVisible(muteButton);
+    muteButton.setColour(juce::TextButton::buttonColourId, juce::Colour::fromRGB(101, 201, 134));
 
 }
 
@@ -122,7 +175,7 @@ void ClarityPlugin3AudioProcessorEditor::initialize_projectName()
     addAndMakeVisible(projectName);
     projectName.setFont(juce::Font(30.0f, juce::Font::bold));
     projectName.setText("CLARITY", juce::dontSendNotification);
-    projectName.setColour(juce::Label::textColourId, juce::Colours::orange);
+    projectName.setColour(juce::Label::textColourId, juce::Colours::black);
     projectName.setJustificationType(juce::Justification::centred);
 }
 
@@ -134,22 +187,24 @@ void ClarityPlugin3AudioProcessorEditor::initialize_muteButton()
     muteButton.onClick = [this] { muteButtonClicked(); };
 }
 
-void ClarityPlugin3AudioProcessorEditor::initialize_mGainControlSilder()
+void ClarityPlugin3AudioProcessorEditor::initialize_mGainControlSlider()
 {
     auto& params = processor.getParameters();
     juce::AudioParameterFloat* gainParameter = (juce::AudioParameterFloat*)params.getUnchecked(0);
     addAndMakeVisible(mGainControlSlider);
-    mGainControlSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    mGainControlSlider.setSliderStyle(juce::Slider::LinearBarVertical);
     mGainControlSlider.setRange(gainParameter->range.start, gainParameter->range.end);
     mGainControlSlider.setValue(*gainParameter);
     mGainControlSlider.setColour(juce::Slider::thumbColourId, juce::Colour::fromRGB(96, 45, 50));
     mGainControlSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 50);
     mGainControlSlider.onValueChange = [this] { mGainControlSlider_SliderValueChanged(); };
+    getLookAndFeel().setColour(juce::Slider::backgroundColourId, juce::Colours::black);
 }
 
 void ClarityPlugin3AudioProcessorEditor::initialize_gainLabel()
 {
     addAndMakeVisible(gainLabel);
+    getLookAndFeel().setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::black);
     gainLabel.setFont(juce::Font(16.0f, juce::Font::bold));
     gainLabel.attachToComponent(&mGainControlSlider, false);
     gainLabel.setJustificationType(juce::Justification::centred);
@@ -173,6 +228,7 @@ void ClarityPlugin3AudioProcessorEditor::initialize_lowPassLabel()
 void ClarityPlugin3AudioProcessorEditor::initialize_lowPass()
 {
     //lowPass knob
+    getLookAndFeel().setColour(juce::Slider::rotarySliderFillColourId, juce::Colours::black);
     addAndMakeVisible(&lowPass);
     lowPass.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     lowPass.setRange(20.0f, 20000.0f);
